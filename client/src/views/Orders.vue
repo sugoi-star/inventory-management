@@ -63,7 +63,7 @@
                 </td>
                 <td class="col-status">
                   <span :class="['badge', getOrderStatusClass(order.status)]">
-                    {{ t(`status.${order.status.toLowerCase()}`) }}
+                    {{ t(`status.${(order.status || '').toLowerCase()}`) }}
                   </span>
                 </td>
                 <td class="col-date">{{ formatDate(order.order_date) }}</td>

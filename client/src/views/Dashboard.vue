@@ -363,7 +363,7 @@ export default {
     const statusData = computed(() => {
       const counts = { delivered: 0, shipped: 0, processing: 0, backordered: 0 }
       allOrders.value.forEach(order => {
-        const status = order.status.toLowerCase()
+        const status = (order.status || '').toLowerCase()
         if (counts[status] !== undefined) counts[status]++
       })
       return counts
@@ -375,7 +375,7 @@ export default {
       const avgOrderValue = totalOrders > 0 ? totalValue / totalOrders : 0
 
       // Calculate on-time delivery rate (delivered orders that arrived on or before expected date)
-      const deliveredOrders = allOrders.value.filter(o => o.status.toLowerCase() === 'delivered')
+      const deliveredOrders = allOrders.value.filter(o => (o.status || '').toLowerCase() === 'delivered')
       const onTimeDeliveries = deliveredOrders.filter(o => {
         if (o.actual_delivery && o.expected_delivery) {
           return new Date(o.actual_delivery) <= new Date(o.expected_delivery)
