@@ -121,6 +121,7 @@
 <script>
 import { ref, computed } from 'vue'
 import { useI18n } from '../composables/useI18n'
+import { useDateFormatting } from '../composables/useDateFormatting'
 
 export default {
   name: 'TasksModal',
@@ -137,6 +138,7 @@ export default {
   emits: ['close', 'add-task', 'delete-task', 'toggle-task'],
   setup(props, { emit }) {
     const { t, currentLocale } = useI18n()
+    const { formatDueDate } = useDateFormatting()
     const newTask = ref({
       title: '',
       priority: 'medium',
@@ -165,32 +167,6 @@ export default {
           dueDate: ''
         }
       }
-    }
-
-    const formatDueDate = (dateString) => {
-      const date = new Date(dateString)
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      const dueDate = new Date(date)
-      dueDate.setHours(0, 0, 0, 0)
-
-      const diffTime = dueDate - today
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-      const isJapanese = currentLocale.value === 'ja'
-
-      if (diffDays === 0) return isJapanese ? '今日' : 'today'
-      if (diffDays === 1) return isJapanese ? '明日' : 'tomorrow'
-      if (diffDays === -1) return isJapanese ? '昨日' : 'yesterday'
-      if (diffDays < 0) return isJapanese ? `${Math.abs(diffDays)}日前` : `${Math.abs(diffDays)} days ago`
-      if (diffDays < 7) return isJapanese ? `${diffDays}日後` : `in ${diffDays} days`
-
-      const locale = isJapanese ? 'ja-JP' : 'en-US'
-      return date.toLocaleDateString(locale, {
-        month: 'short',
-        day: 'numeric',
-        year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
-      })
     }
 
     const getStatusClass = (dueDate, status) => {

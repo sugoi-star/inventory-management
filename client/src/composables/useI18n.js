@@ -90,6 +90,43 @@ export function useI18n() {
     return customerName
   }
 
+  // Translate category names (inventory + spending categories)
+  const translateCategory = (category) => {
+    const categoryMap = {
+      // Inventory categories
+      'Circuit Boards': t('categories.circuitBoards'),
+      'Sensors': t('categories.sensors'),
+      'Actuators': t('categories.actuators'),
+      'Controllers': t('categories.controllers'),
+      'Power Supplies': t('categories.powerSupplies'),
+      // Spending categories
+      'Raw Materials': t('categories.rawMaterials'),
+      'Components': t('categories.components'),
+      'Equipment': t('categories.equipment'),
+      'Consumables': t('categories.consumables')
+    }
+    return categoryMap[category] || category
+  }
+
+  // Translate month abbreviations (e.g. 'Jan' -> '1月' in Japanese)
+  const translateMonth = (month) => {
+    const monthMap = {
+      'Jan': t('months.jan'),
+      'Feb': t('months.feb'),
+      'Mar': t('months.mar'),
+      'Apr': t('months.apr'),
+      'May': t('months.may'),
+      'Jun': t('months.jun'),
+      'Jul': t('months.jul'),
+      'Aug': t('months.aug'),
+      'Sep': t('months.sep'),
+      'Oct': t('months.oct'),
+      'Nov': t('months.nov'),
+      'Dec': t('months.dec')
+    }
+    return monthMap[month] || month
+  }
+
   // Translate warehouse names
   const translateWarehouse = (warehouseName) => {
     if (currentLocale.value === 'ja') {
@@ -123,6 +160,8 @@ export function useI18n() {
     localeName,
     translateProductName,
     translateCustomerName,
-    translateWarehouse
+    translateWarehouse,
+    translateCategory,
+    translateMonth
   }
 }
