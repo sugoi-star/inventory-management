@@ -120,6 +120,23 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: str  # high | medium | low
+    dueDate: str
+    status: str    # pending | completed
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: str = 'medium'
+    dueDate: str
+    status: str = 'pending'
+
+# In-memory task store (resets on server restart, consistent with mock data pattern)
+import uuid as _uuid
+_tasks: list = []
+
 # API endpoints
 @app.get("/")
 def root():
@@ -303,6 +320,43 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get all user tasks"""
+    return _tasks
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(task: CreateTaskRequest):
+    """Create a new task"""
+    new_task = {
+        "id": str(_uuid.uuid4()),
+        "title": task.title,
+        "priority": task.priority,
+        "dueDate": task.dueDate,
+        "status": task.status,
+    }
+    _tasks.append(new_task)
+    return new_task
+
+@app.delete("/api/tasks/{task_id}")
+def delete_task(task_id: str):
+    """Delete a task by ID"""
+    global _tasks
+    original_len = len(_tasks)
+    _tasks = [t for t in _tasks if t["id"] != task_id]
+    if len(_tasks) == original_len:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    return {"message": "Task deleted"}
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    """Toggle task status between pending and completed"""
+    task = next((t for t in _tasks if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
 
 if __name__ == "__main__":
     import uvicorn
